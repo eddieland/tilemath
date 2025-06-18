@@ -1,25 +1,17 @@
-# ---- Project Info and Dependencies ----
-
-[project.urls]
-Repository = "https://github.com/eddieland/tiler-py"
-# Homepage = "https://..."
-# Documentation = "https://..."
+# Dynamic versioning from:
+# https://github.com/ninoseki/uv-dynamic-versioning/
 
 [project]
 name = "tiler-py"
 description = "API-compatible replacement for the Mercantile library with full type safety."
-authors = [
-    { name="Edward Jones", email="e@eddie.land" },
-]
+authors = [{ name = "Edward Jones", email = "e@eddie.land" }]
 readme = "README.md"
-license = "MIT"
-requires-python = ">=3.11,<4.0"
+requires-python = ">=3.10,<4.0"
 dynamic = ["version"]
 
 # https://pypi.org/classifiers/
 # Adjust as needed:
 classifiers = [
-    # Adjust as needed:
     "Development Status :: 4 - Beta",
     # "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -32,17 +24,10 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
     # Include this to avoid accidentally publishing to PyPI:
-    # "Private :: Do Not Upload",
+    "Private :: Do Not Upload",
 ]
 
-
-# ---- Main dependencies ----
-
-dependencies = [
-]
-
-
-# ---- Dev dependencies ----
+dependencies = []
 
 [dependency-groups]
 dev = [
@@ -51,19 +36,12 @@ dev = [
     "ruff>=0.11.9",
     "codespell>=2.4.1",
     "rich>=14.0.0",
-    "basedpyright>=1.29.1",
+    "mypy>=1.8.0",
     "funlog>=0.2.1",
 ]
 
-[project.scripts]
-# Add script entry points here:
-tiler-py = "tiler:main"
-
-
-# ---- Build system ----
-
-# Dynamic versioning from:
-# https://github.com/ninoseki/uv-dynamic-versioning/
+[project.urls]
+Repository = "https://github.com/eddieland/tiler-py"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
@@ -84,28 +62,30 @@ bump = "true"
 # The source location for the package.
 packages = ["src/tiler"]
 
-
-# ---- Settings ----
-
 [tool.ruff]
-# Set as desired, typically 88 (black standard) or 100 (wide).
-line-length = 100
+line-length = 120
+
+[tool.ruff.format]
+# Use double quotes for strings (black standard)
+quote-style = "double"
+
+# Indent with spaces (black standard)
+indent-style = "space"
+
+# Like black
+line-ending = "auto"
 
 [tool.ruff.lint]
 select = [
     # See: https://docs.astral.sh/ruff/rules/
     # Basic list from: https://docs.astral.sh/ruff/linter/#rule-selection
-    "E", # https://docs.astral.sh/ruff/rules/#error-e
-    "F", # https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "E",  # https://docs.astral.sh/ruff/rules/#error-e
+    "F",  # https://docs.astral.sh/ruff/rules/#pyflakes-f
     "UP", # https://docs.astral.sh/ruff/rules/#pyupgrade-up
-    "B", # https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
-    "I", # https://docs.astral.sh/ruff/rules/#isort-i
-    # Other possibilities:
-    # "D" # https://docs.astral.sh/ruff/rules/#pydocstyle-d
-    # "Q" # https://docs.astral.sh/ruff/rules/#flake8-quotes-q
-    # "COM" # https://docs.astral.sh/ruff/rules/#flake8-commas-com
-    # "SIM", # https://docs.astral.sh/ruff/rules/#flake8-simplify-sim
-
+    "B",  # https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+    "I",  # https://docs.astral.sh/ruff/rules/#isort-i
+    # Add pydocstyle for Google-style docstrings
+    "D", # https://docs.astral.sh/ruff/rules/#pydocstyle-d
 ]
 ignore = [
     # Disable some rules that are overly pedantic. Add/remove as desired:
@@ -114,47 +94,81 @@ ignore = [
     "E731", # https://docs.astral.sh/ruff/rules/lambda-assignment/
     # We use both ruff formatter and linter so some rules should always be disabled.
     # See: https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    "W191", # https://docs.astral.sh/ruff/rules/tab-indentation/
-    "E111", # https://docs.astral.sh/ruff/rules/indentation-with-invalid-multiple/
-    "E114", # https://docs.astral.sh/ruff/rules/indentation-with-invalid-multiple-comment/
-    "E117", # https://docs.astral.sh/ruff/rules/over-indented/
-    "D206", # https://docs.astral.sh/ruff/rules/docstring-tab-indentation/
-    "D300", # https://docs.astral.sh/ruff/rules/triple-single-quotes/
-    "Q000", # https://docs.astral.sh/ruff/rules/bad-quotes-inline-string/
-    "Q001", # https://docs.astral.sh/ruff/rules/bad-quotes-multiline-string/
-    "Q002", # https://docs.astral.sh/ruff/rules/bad-quotes-docstring/
-    "Q003", # https://docs.astral.sh/ruff/rules/avoidable-escaped-quote/
+    "W191",   # https://docs.astral.sh/ruff/rules/tab-indentation/
+    "E111",   # https://docs.astral.sh/ruff/rules/indentation-with-invalid-multiple/
+    "E114",   # https://docs.astral.sh/ruff/rules/indentation-with-invalid-multiple-comment/
+    "E117",   # https://docs.astral.sh/ruff/rules/over-indented/
+    "D206",   # https://docs.astral.sh/ruff/rules/docstring-tab-indentation/
+    "D300",   # https://docs.astral.sh/ruff/rules/triple-single-quotes/
+    "Q000",   # https://docs.astral.sh/ruff/rules/bad-quotes-inline-string/
+    "Q001",   # https://docs.astral.sh/ruff/rules/bad-quotes-multiline-string/
+    "Q002",   # https://docs.astral.sh/ruff/rules/bad-quotes-docstring/
+    "Q003",   # https://docs.astral.sh/ruff/rules/avoidable-escaped-quote/
     "COM812", # https://docs.astral.sh/ruff/rules/missing-trailing-comma/
     "COM819", # https://docs.astral.sh/ruff/rules/prohibited-trailing-comma/
     "ISC002", # https://docs.astral.sh/ruff/rules/multi-line-implicit-string-concatenation/
 ]
 
-[tool.basedpyright]
-# BasedPyright currently seems like the best type checker option, much faster
-# than mypy and with a good extension for VSCode/Cursor.
-# https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright
-# https://docs.basedpyright.com/latest/configuration/config-files/#sample-pyprojecttoml-file
-include = ["src", "tests", "devtools"]
-# By default BasedPyright is very strict, so you almost certainly want to disable
-# some of the rules.
-# First, these turn off warnings about (yes) how you ignore warnings:
-reportIgnoreCommentWithoutRule = false
-# reportUnnecessaryTypeIgnoreComment = false
-# A few typically noisy warnings are next.
-# How many you enable is up to you. The first few are off by default, but you can
-# comment/uncomment these as desired:
-reportMissingTypeStubs = false
-reportUnusedCallResult = false
-reportAny = false
-reportExplicitAny = false
-reportImplicitStringConcatenation = false
-reportUnreachable = false
-# reportPrivateImportUsage = false
-# reportPrivateLocalImportUsage = false
-# reportMissingImports = false
-# reportUnnecessaryIsInstance = false
-# reportUnknownVariableType = false
-# reportUnknownArgumentType = false
+[tool.ruff.lint.pydocstyle]
+convention = "google" # Enforce Google-style docstrings
+
+[tool.ruff.lint.per-file-ignores]
+# Suppress docstring rules for tests and devtools
+"tests/**/*.py" = ["D"]
+"devtools/**/*.py" = ["D"]
+
+[tool.mypy]
+# Strict mypy configuration
+python_version = "3.11"
+strict = true
+
+# Additional strict settings beyond the basic strict mode
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+disallow_any_generics = true
+disallow_any_unimported = true
+disallow_any_expr = true
+disallow_any_decorated = true
+disallow_any_explicit = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+check_untyped_defs = true
+no_implicit_optional = true
+strict_optional = true
+strict_equality = true
+strict_concatenate = true
+
+# Error output settings
+show_error_codes = true
+show_column_numbers = true
+show_error_context = true
+pretty = true
+
+# Import discovery
+namespace_packages = true
+explicit_package_bases = true
+
+# Miscellaneous strictness
+no_implicit_reexport = true
+local_partial_types = true
+
+# Platform configuration
+platform = "linux"
+
+# Files to check
+files = ["src", "tests", "devtools"]
+
+# Per-module options can be added here if needed
+# [[tool.mypy.overrides]]
+# module = "some_module.*"
+# ignore_errors = true
 
 [tool.codespell]
 # Add here as needed:
@@ -165,9 +179,6 @@ reportUnreachable = false
 python_files = ["*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-testpaths = [
-    "src",
-    "tests",
-]
+testpaths = ["src", "tests"]
 norecursedirs = []
 filterwarnings = []
