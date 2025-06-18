@@ -26,6 +26,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -138,7 +139,7 @@ include = ["src", "tests", "devtools"]
 # some of the rules.
 # First, these turn off warnings about (yes) how you ignore warnings:
 reportIgnoreCommentWithoutRule = false
-reportUnnecessaryTypeIgnoreComment = false
+# reportUnnecessaryTypeIgnoreComment = false
 # A few typically noisy warnings are next.
 # How many you enable is up to you. The first few are off by default, but you can
 # comment/uncomment these as desired:
