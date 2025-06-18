@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
 # Assistant Guidelines
@@ -67,7 +67,7 @@ Therefore:
   DO NOT use emojis gratuitously as it clutters the output with little benefit.
 
 ---
-description: 
+description:
 globs: *.py,pyproject.toml
 alwaysApply: false
 ---
@@ -77,8 +77,8 @@ These are rules for a modern Python project using uv.
 
 ## Python Version
 
-Write for Python 3.11-3.13. Do NOT write code to support earlier versions of Python.
-Always use modern Python practices appropriate for Python 3.11-3.13.
+Write for Python 3.10-3.12. Do NOT write code to support earlier versions of Python.
+Always use modern Python practices appropriate for Python 3.10-3.12.
 
 Always use full type annotations, generics, and other modern practices.
 
@@ -95,20 +95,17 @@ Always use full type annotations, generics, and other modern practices.
 
 - You may use the following shortcuts
   ```shell
-  
+
   # Install all dependencies:
   make install
-  
-  # Run linting (with ruff) and type checking (with basedpyright).
+
+  # Run linting (with ruff) and type checking (with mypy).
   # Note when you run this, ruff will auto-format and sort imports, resolving any
   # linter warnings about import ordering:
   make lint
-  
+
   # Run tests:
   make test
-  
-  # Run uv sync, lint, and test in one command:
-  make
   ```
 
 - The usual `make test` like standard pytest does not show test output.
@@ -145,7 +142,7 @@ Always use full type annotations, generics, and other modern practices.
   example: `from collections.abc import Callable, Coroutine`
 
 - Use `typing_extensions` for things like `@override` (you need to use this, and not
-  `typing` since we want to support Python 3.11).
+  `typing` since we want to support Python 3.10+).
 
 - Add `from __future__ import annotations` on files with types whenever applicable.
 
@@ -159,14 +156,14 @@ Always use full type annotations, generics, and other modern practices.
 
 ## Testing
 
-- Don't write one-off test code in extra files or within `if __name__ == "__main__":`
-  blocks. Instead, for simple tests, create simple test functions in the original file
-  below a `## Tests` comment.
-  This keeps the tests clear and close to the code.
+- All tests must go in the `tests/` directory in a path derived from the path under test.
+  For example, tests for `src/tiler/core.py` should go in `tests/test_core.py`.
 
-- For longer tests `test_somename.py` in the `tests/` directory.
+- Don't write test code in source files or within `if __name__ == "__main__":` blocks.
 
-- Then you can run such tests with `uv run python -s src/.../path/to/test`
+- Use `test_somename.py` naming convention in the `tests/` directory.
+
+- Run tests with `make test` or `uv run pytest`.
 
 - Don't add docs to assertions unless it's not obvious what they're checking - the
   assertion appears in the stack trace.
@@ -174,11 +171,8 @@ Always use full type annotations, generics, and other modern practices.
   x is 5`. That is redundant.
   Just write `assert x == 5`.
 
-- Don't use pytest fixtures like parameterized tests or expected exception decorators
-  unless absolutely necessary in more complex tests.
-  It is often far simpler to use simple assertions and put the checks inside the test.
-  This is preferable because then we want simple tests in original source files but
-  don't want pytest dependencies at runtime.
+- Parameterized tests are acceptable, but must use explicit test case IDs that give a clear indication of the case being tested.
+  For simpler scenarios, it is often clearer to use simple assertions and put the checks inside the test.
 
 ## Types and Type Annotations
 
@@ -201,7 +195,7 @@ Always use full type annotations, generics, and other modern practices.
     Media types. For broad categories only, to determine what processing
     is possible.
     """
-  
+
     text = "text"
     image = "image"
     audio = "audio"
@@ -212,30 +206,7 @@ Always use full type annotations, generics, and other modern practices.
 
 ## Guidelines for Docstrings
 
-- Here is an example of the correct style for docstrings:
-  ```python
-  def check_if_url(
-      text: UnresolvedLocator, only_schemes: list[str] | None = None
-  ) -> ParseResult | None:
-      """
-      Convenience function to check if a string or Path is a URL and if so return
-      the `urlparse.ParseResult`.
-  
-      Also returns false for Paths, so that it's easy to use local paths and URLs
-      (`Locator`s) interchangeably. Can provide `HTTP_ONLY` or `HTTP_OR_FILE` to
-      restrict to only certain schemes.
-      """
-      # Function body
-  
-  def is_url(text: UnresolvedLocator, only_schemes: list[str] | None = None) -> bool:
-      """
-      Check if a string is a URL. For convenience, also returns false for
-      Paths, so that it's easy to use local paths and URLs interchangeably.
-      """
-      return check_if_url(text, only_schemes) is not None
-  ```
-
-- Use concise pydoc strings with triple quotes on their own lines.
+- Use Google-style docstrings.
 
 - Use `backticks` around variable names and inline code excerpts.
 
@@ -264,4 +235,3 @@ Always use full type annotations, generics, and other modern practices.
 - Exported/public variables, functions, or methods SHOULD have concise docstrings.
   Internal/local variables, functions, and methods DO NOT need docstrings unless their
   purpose is not obvious.
-
