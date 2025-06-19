@@ -15,7 +15,7 @@ import pytest
 from hypothesis import example, given
 from hypothesis.strategies import SearchStrategy, composite, integers
 
-from tiler import mercantile
+from tilemath import mercantile
 
 
 @pytest.mark.parametrize(

@@ -1,4 +1,4 @@
-"""Fuzzing tests to compare tiler.mercantile with upstream mercantile library."""
+"""Fuzzing tests to compare tilemath.mercantile with upstream mercantile library."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy, composite
 
-from tiler.mercantile import (
+from tilemath.mercantile import (
     bounding_tile,
     bounds,
     children,

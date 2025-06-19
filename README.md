@@ -1,4 +1,4 @@
-# tiler-py
+# tilemath
 
 A modern, type-safe Python library for spherical mercator coordinate and tile utilities. Designed as an API-compatible replacement for [mercantile](https://github.com/mapbox/mercantile) with full type safety and minimal dependencies.
 
@@ -13,19 +13,19 @@ A modern, type-safe Python library for spherical mercator coordinate and tile ut
 ## Installation
 
 ```bash
-pip install tiler-py
+pip install tilemath
 ```
 
 Or with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv add tiler-py
+uv add tilemath
 ```
 
 ## Quick Start
 
 ```python
-import tiler.mercantile as mercantile
+import tilemath.mercantile as mercantile
 
 # Convert longitude/latitude to tile coordinates
 tile = mercantile.tile(-122.4194, 37.7749, 12)  # San Francisco
@@ -57,10 +57,10 @@ The library provides the same API as mercantile, including:
 
 ## Type Safety
 
-Unlike the original mercantile, tiler-py provides complete type annotations:
+Unlike the original mercantile, tilemath provides complete type annotations:
 
 ```python
-from tiler.mercantile import Tile, Bbox
+from tilemath.mercantile import Tile, Bbox
 
 # All functions have proper type hints
 def process_tile(tile: Tile) -> Bbox:
@@ -84,8 +84,8 @@ This project uses [uv](https://docs.astral.sh/uv/) for dependency management and
 
 ```bash
 # Clone the repository
-git clone https://github.com/eddieland/tiler-py.git
-cd tiler-py
+git clone https://github.com/eddieland/tilemath.git
+cd tilemath
 
 # Install dependencies
 make install
@@ -98,7 +98,7 @@ make install
 make test
 
 # Run specific test file
-uv run pytest tests/test_mercantile.py -v
+uv run pytest tests/test_mercantile_upstream.py -v
 ```
 
 ### Code Quality

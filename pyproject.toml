@@ -2,7 +2,7 @@
 # https://github.com/ninoseki/uv-dynamic-versioning/
 
 [project]
-name = "tiler-py"
+name = "tilemath"
 description = "API-compatible replacement for the Mercantile library with full type safety."
 authors = [{ name = "Edward Jones", email = "e@eddie.land" }]
 readme = "README.md"
@@ -41,7 +41,7 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/eddieland/tiler-py"
+Repository = "https://github.com/eddieland/tilemath"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
@@ -60,7 +60,7 @@ bump = "true"
 
 [tool.hatch.build.targets.wheel]
 # The source location for the package.
-packages = ["src/tiler"]
+packages = ["src/tilemath"]
 
 [tool.ruff]
 line-length = 120

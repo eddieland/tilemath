@@ -157,7 +157,7 @@ Always use full type annotations, generics, and other modern practices.
 ## Testing
 
 - All tests must go in the `tests/` directory in a path derived from the path under test.
-  For example, tests for `src/tiler/core.py` should go in `tests/test_core.py`.
+  For example, tests for `src/tilemath/core.py` should go in `tests/test_core.py`.
 
 - Don't write test code in source files or within `if __name__ == "__main__":` blocks.
 

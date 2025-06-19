@@ -6,5 +6,5 @@ package_author_name: Edward Jones
 package_description: API-compatible replacement for the Mercantile library with full
     type safety.
 package_github_org: eddieland
-package_module: tiler
-package_name: tiler-py
+package_module: tilemath
+package_name: tilemath

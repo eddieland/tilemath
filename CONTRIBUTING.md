@@ -1,6 +1,6 @@
-# Contributing to tiler-py
+# Contributing to tilemath
 
-Thank you for your interest in contributing to tiler-py! This guide will help you set up your development environment and understand our workflow.
+Thank you for your interest in contributing to tilemath! This guide will help you set up your development environment and understand our workflow.
 
 ## Prerequisites
 
@@ -32,8 +32,8 @@ uv python install 3.13  # or 3.11, 3.12
 1. **Fork and clone the repository:**
    ```shell
    # Fork the repo on GitHub first, then:
-   git clone https://github.com/YOUR_USERNAME/tiler-py.git
-   cd tiler-py
+   git clone https://github.com/eddieland/tilemath.git
+   cd tilemath
    ```
 
 2. **Set up your development environment:**
@@ -67,7 +67,7 @@ make upgrade    # Update dependencies to latest compatible versions
 make test
 
 # Specific test with output:
-uv run pytest -s src/tiler/some_test.py
+uv run pytest -s src/tilemath/some_test.py
 
 # All tests with verbose output:
 uv run pytest -v
@@ -77,7 +77,7 @@ uv run pytest -v
 
 Before submitting changes:
 
-1. **Run the linter:** `make lint` (auto-fixes formatting issues)
+1. **Run the linter:** `make lint`
 2. **Run tests:** `make test`
 3. **Ensure zero errors:** Both commands must pass without warnings
 
@@ -179,7 +179,7 @@ Simply repeat the release creation process with a new version tag. The automatio
 
 - [uv documentation](https://docs.astral.sh/uv/)
 - [basedpyright documentation](https://docs.basedpyright.com/latest/)
-- [Project repository](https://github.com/eddieland/tiler-py)
+- [Project repository](https://github.com/eddieland/tilemath)
 
 ## Questions?
 

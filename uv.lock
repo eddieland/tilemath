@@ -248,7 +248,7 @@ wheels = [
 ]
 
 [[package]]
-name = "tiler-py"
+name = "tilemath"
 source = { editable = "." }
 dependencies = [
     { name = "typing-extensions" },
