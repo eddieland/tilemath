@@ -18,9 +18,11 @@ install: ## Install the project's dependencies with uv (**including all extras a
 
 ### Development
 
-lint: ## Run linters
-	uv run ruff check src tests
+lint: ## Run linters and formatting check
+	uv run ruff format --check src tests typings
+	uv run ruff check src tests typings
 	uv run mypy src tests
+	uv run codespell src tests README.md CONTRIBUTING.md
 
 test: ## Run tests
 	uv run pytest

@@ -23,7 +23,7 @@ jobs:
         with:
           version: "0.7.13"
           enable-cache: true
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Set up Python (using uv)
         run: uv python install
@@ -31,9 +31,12 @@ jobs:
       - name: Install all dependencies
         run: uv sync --all-extras --dev
 
+      - name: Run linting and quality checks
+        run: make lint
+
       - name: Run tests
-        run: uv run pytest
-        
+        run: make test
+
       - name: Build package
         run: uv build
 

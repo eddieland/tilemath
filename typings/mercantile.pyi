@@ -1,11 +1,7 @@
-"""Web mercator XYZ tile utilities - Type stubs"""
+"""Web mercator XYZ tile utilities - Type stubs."""
 
 from collections.abc import Generator, Sequence
 from typing import Any, NamedTuple
-
-__version__: str
-
-__all__: list[str]
 
 R2D: float
 RE: float

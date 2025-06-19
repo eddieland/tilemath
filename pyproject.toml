@@ -23,8 +23,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
-    # Include this to avoid accidentally publishing to PyPI:
-    "Private :: Do Not Upload",
 ]
 
 dependencies = [
@@ -33,14 +31,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "codespell>=2.4.1",
+    "hypothesis>=6.135.11",
+    "mercantile>=1.2.1",
+    "mypy>=1.8.0",
     "pytest>=8.3.5",
     "pytest-sugar>=1.0.0",
     "ruff>=0.11.9",
-    "codespell>=2.4.1",
-    "rich>=14.0.0",
-    "mypy>=1.8.0",
-    "hypothesis>=6.135.11",
-    "mercantile>=1.2.1",
 ]
 
 [project.urls]
