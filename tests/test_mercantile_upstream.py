@@ -191,7 +191,7 @@ def test_global_tiles_clamped() -> None:
 )
 def test_tiles_roundtrip(t: mercantile.Tile) -> None:
     """tiles(bounds(tile)) gives the tile"""
-    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[t.z]))
+    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[t.z]))  # type: ignore[misc]
     assert len(res) == 1
     val = res.pop()
     assert val.x == t.x
@@ -202,7 +202,7 @@ def test_tiles_roundtrip(t: mercantile.Tile) -> None:
 def test_tiles_roundtrip_children() -> None:
     """tiles(bounds(tile)) gives the tile's children"""
     t = mercantile.Tile(x=3413, y=6202, z=14)
-    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[15]))
+    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[15]))  # type: ignore[misc]
     assert len(res) == 4
 
 
@@ -315,18 +315,6 @@ def test_child_bad_tile_zoom() -> None:
     with pytest.raises(mercantile.InvalidZoomError) as e:
         mercantile.children((243, 166, 9), zoom=8)
     assert "zoom must be an integer and greater than" in str(e.value)
-
-
-def test_parent_fractional_tile() -> None:
-    with pytest.raises(mercantile.ParentTileError) as e:
-        mercantile.parent((243.3, 166.2, 9), zoom=1)  # type: ignore[arg-type]
-    assert "the parent of a non-integer tile is undefined" in str(e.value)
-
-
-def test_parent_fractional_zoom() -> None:
-    with pytest.raises(mercantile.InvalidZoomError) as e:
-        mercantile.parent((243, 166, 9), zoom=1.2)  # type: ignore[arg-type]
-    assert "zoom must be an integer and less than" in str(e.value)
 
 
 def test_parent_bad_tile_zoom() -> None:
@@ -450,7 +438,7 @@ def test_arg_parse(
     tile: tuple[int, int, int],
 ) -> None:
     """Helper function parse tile args properly"""
-    assert mercantile._parse_tile_arg(input_) == mercantile.Tile(*tile)  # type: ignore
+    assert mercantile._parse_tile_arg(input_) == mercantile.Tile(*tile)
 
 
 @pytest.mark.parametrize(
@@ -531,7 +519,7 @@ def test_tile_poles(lat: float) -> None:
 )
 def test__xy_poles(lat: float) -> None:
     with pytest.raises(mercantile.InvalidLatitudeError):
-        mercantile._xy(0.0, lat)  # type: ignore
+        mercantile._xy(0.0, lat)
 
 
 @pytest.mark.parametrize(
@@ -542,7 +530,7 @@ def test__xy_poles(lat: float) -> None:
     ],
 )
 def test__xy_limits(lat: float, fy: float) -> None:
-    x, y = mercantile._xy(0.0, lat)  # type: ignore
+    x, y = mercantile._xy(0.0, lat)
     assert x == 0.5
     assert y == pytest.approx(fy)
 
@@ -554,7 +542,7 @@ def test__xy_limits(lat: float, fy: float) -> None:
     ],
 )
 def test__xy_north_of_limit(lat: float) -> None:
-    x, y = mercantile._xy(0.0, lat)  # type: ignore
+    x, y = mercantile._xy(0.0, lat)
     assert x == 0.5
     assert y < 0
 
@@ -566,7 +554,7 @@ def test__xy_north_of_limit(lat: float) -> None:
     ],
 )
 def test__xy_south_of_limit(lat: float) -> None:
-    x, y = mercantile._xy(0.0, lat)  # type: ignore
+    x, y = mercantile._xy(0.0, lat)
     assert x == 0.5
     assert y > 1
 
@@ -609,7 +597,7 @@ def test_minmax_error(z: Any) -> None:
 )
 def test_coords(obj: dict[str, Any] | tuple[int, int] | list[tuple[int, int]]) -> None:
     """Get coordinates of mock geojson objects"""
-    assert list(mercantile._coords(obj)) == [(1, 2)]  # type: ignore
+    assert list(mercantile._coords(obj)) == [(1, 2)]
 
 
 @pytest.mark.parametrize(

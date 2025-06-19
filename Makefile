@@ -19,14 +19,15 @@ install: ## Install the project's dependencies with uv (**including all extras a
 ### Development
 
 lint: ## Run linters
-	uv run python devtools/lint.py
+	uv run ruff check src tests
+	uv run mypy src tests
 
 test: ## Run tests
 	uv run pytest
 
 fmt: ## Format code
-	uv run ruff check --fix --exit-zero src tests devtools >/dev/null
-	uv run ruff format src tests devtools
+	uv run ruff check --fix --exit-zero src tests typings >/dev/null
+	uv run ruff format src tests typings
 
 upgrade: ## Upgrade dependencies
 	uv sync --upgrade --all-extras --dev

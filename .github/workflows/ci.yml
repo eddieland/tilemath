@@ -57,7 +57,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run linting
-        run: uv run python devtools/lint.py
+        run: make lint
 
       - name: Run tests
         run: uv run pytest

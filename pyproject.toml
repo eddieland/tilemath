@@ -40,6 +40,7 @@ dev = [
     "rich>=14.0.0",
     "mypy>=1.8.0",
     "hypothesis>=6.135.11",
+    "mercantile>=1.2.1",
 ]
 
 [project.urls]
@@ -115,12 +116,11 @@ ignore = [
 convention = "google" # Enforce Google-style docstrings
 
 [tool.ruff.lint.per-file-ignores]
-# Suppress docstring rules for tests and devtools
+# Suppress docstring rules for tests
 "tests/**/*.py" = ["D"]
-"devtools/**/*.py" = ["D"]
 
 [tool.mypy]
-mypy_path = "src"
+mypy_path = "src:typings"
 
 # Strict mypy configuration
 platform = "linux"
@@ -160,6 +160,7 @@ explicit_package_bases = true
 # Miscellaneous strictness
 no_implicit_reexport = true
 local_partial_types = true
+
 
 [tool.pytest.ini_options]
 python_files = ["*.py"]

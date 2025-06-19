@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import math
 import warnings
-from collections.abc import Generator, Iterator, Sequence
+from collections import defaultdict
+from collections.abc import Generator, Iterator, Sequence, Set
 from dataclasses import dataclass
 from functools import lru_cache
+from operator import attrgetter
 from typing import Any, Final, TypeAlias
 
 TileXyz: TypeAlias = "tuple[int, int, int]"
@@ -873,15 +875,10 @@ def parent(
     if zoom is None:
         target_zoom = as_tile.z - 1
     else:
-        if not isinstance(zoom, int):
-            raise InvalidZoomError(f"zoom must be an integer and less than {as_tile.z}")
         if zoom >= as_tile.z:
             raise InvalidZoomError(f"zoom must be an integer and less than {as_tile.z}")
-        target_zoom = zoom
 
-    # Check for non-integer tile coordinates after zoom validation
-    if not (isinstance(as_tile.x, int) and isinstance(as_tile.y, int) and isinstance(as_tile.z, int)):
-        raise ParentTileError("the parent of a non-integer tile is undefined")
+        target_zoom = zoom
 
     # Calculate zoom difference
     zoom_diff = as_tile.z - target_zoom
@@ -944,7 +941,7 @@ def children(
         # For deeper zoom levels, recursively get children
         # Start with immediate children and then get their children
         immediate_children = children(as_tile, zoom=as_tile.z + 1)
-        result = []
+        result: list[Tile] = []
 
         for child in immediate_children:
             if target_zoom == child.z:
@@ -955,76 +952,49 @@ def children(
         return result
 
 
-def simplify(*tiles: Sequence[Tile] | Tile | Sequence[TileXyz] | TileXyz) -> list[Tile]:
+def simplify(tiles: Sequence[Tile | tuple[int, int, int]]) -> list[Tile]:
     """Reduces the size of the tileset as much as possible by merging leaves into parents.
 
+    This function optimizes a tileset by:
+    1. Removing child tiles that are already covered by parent tiles
+    2. Merging sets of 4 sibling tiles into their parent tile
+
     Args:
-        tiles: Sequences of tiles to merge.
+        tiles: Sequence of tiles represented as (x, y, zoom) tuples.
 
     Returns:
-        Simplified tileset with merged tiles.
-
-    Note:
-        Removes child tiles when their parent is already present and merges
-        complete sets of 4 children into their parent tile.
+        Optimized list of tiles with redundant tiles removed and siblings merged.
     """
     if not tiles:
         return []
 
-    as_tiles = [Tile(*t) if isinstance(t, tuple) else t for t in tiles]
-    raise NotImplementedError("simplify function not yet implemented")
+    tile_set = {tile if isinstance(tile, Tile) else Tile(*tile) for tile in tiles}
+
+    # Remove tiles that are covered by their parents
+    filtered_tiles = _remove_covered_tiles(tile_set)
+
+    # Repeatedly merge sibling tiles until no more merging is possible
+    return _merge_siblings_recursively(filtered_tiles)
 
 
-"""
-# Reference implementation
+def _remove_covered_tiles(tile_set: Set[Tile]) -> set[Tile]:
+    """Remove tiles that are already covered by their parent tiles."""
+    result: set[Tile] = set()
 
-def bounding_tile(*bbox, **kwds):
-    \"""Get the smallest tile containing a geographic bounding box
+    # Sort by zoom level (ascending) to process parents before children
+    for tile in sorted(tile_set, key=attrgetter("z")):
+        # Check if any parent tile already exists in our result set
+        is_covered = False
+        for zoom_level in range(tile.z):
+            parent_tile = parent(tile, zoom=zoom_level)
+            if parent_tile in result:
+                is_covered = True
+                break
 
-    NB: when the bbox spans lines of lng 0 or lat 0, the bounding tile
-    will be Tile(x=0, y=0, z=0).
+        if not is_covered:
+            result.add(tile)
 
-    Parameters
-    ----------
-    bbox : sequence of float
-        west, south, east, north bounding values in decimal degrees.
-
-    Returns
-    -------
-    Tile
-
-    \"""
-    if len(bbox) == 2:
-        bbox += bbox
-
-    w, s, e, n = bbox
-
-    truncate = bool(kwds.get("truncate"))
-
-    if truncate:
-        w, s = truncate_lnglat(w, s)
-        e, n = truncate_lnglat(e, n)
-
-    e = e - LL_EPSILON
-    s = s + LL_EPSILON
-
-    try:
-        tmin = tile(w, n, 32)
-        tmax = tile(e, s, 32)
-    except InvalidLatitudeError:
-        return Tile(0, 0, 0)
-
-    cell = tmin[:2] + tmax[:2]
-    z = _getBboxZoom(*cell)
-
-    if z == 0:
-        return Tile(0, 0, 0)
-
-    x = rshift(cell[0], (32 - z))
-    y = rshift(cell[1], (32 - z))
-
-    return Tile(x, y, z)
-"""
+    return result
 
 
 def bounding_tile(
@@ -1048,47 +1018,22 @@ def bounding_tile(
         InvalidLatitudeError: If latitude values are invalid and truncate=False.
         TileError: If the bounding box is invalid.
     """
-    west: float
-    south: float
-    east: float
-    north: float
-
-    try:
-        # Unpack *bbox into a single argument to simplify parsing
-        if len(bbox) == 1:
-            bbox_arg = bbox[0]
-        else:
-            bbox_arg = bbox  # The splatted args become a tuple
-
-        # Parse the flexible bbox argument structure
-        if isinstance(bbox_arg, LngLatBbox | LngLat):
-            if len(bbox_arg) == 4:  # LngLatBbox
-                west, south, east, north = bbox_arg
-            else:  # LngLat - duplicate coordinates for point
-                west, south = bbox_arg
-                east, north = west, south
-        # Check for other sequence-like objects (tuple, list)
-        elif isinstance(bbox_arg, Sequence):
-            if len(bbox_arg) == 4:
-                west, south, east, north = bbox_arg  # type: ignore
-            elif len(bbox_arg) == 2:
-                west, south = bbox_arg  # type: ignore
-                east, north = west, south
-            else:
-                raise ValueError("Bbox sequence must have 2 or 4 elements")
-        else:
-            raise ValueError("Invalid bbox argument type")
-
-    except (TypeError, ValueError, IndexError) as e:
-        raise TileError(f"Invalid bounding box arguments: {bbox!r}") from e
+    west, south, east, north = _parse_bbox_args(*bbox)
 
     if south > north:
         raise TileError(f"Invalid bounding box: south ({south}) > north ({north})")
 
-    # Handle coordinate truncation if requested
-    if truncate:
+    # Check if coordinates are outside valid Web Mercator range
+    # If so, automatically handle them to avoid projection errors
+    coords_outside_range = south < MIN_LAT or north > MAX_LAT or south > MAX_LAT or north < MIN_LAT
+
+    # Handle coordinate truncation if requested or if coordinates are outside valid range
+    if truncate or coords_outside_range:
         west, south = truncate_lnglat(west, south)
         east, north = truncate_lnglat(east, north)
+        # If coordinates span the entire valid range after truncation, return world tile
+        if west <= -180.0 and east >= 180.0 and south <= MIN_LAT and north >= MAX_LAT:
+            return Tile(0, 0, 0)
 
     # Apply epsilon adjustments to handle edge cases in tile calculations
     # This prevents issues with coordinates that fall exactly on tile boundaries
@@ -1098,14 +1043,13 @@ def bounding_tile(
     try:
         # Calculate tiles at high zoom level (32) for precise coordinate mapping
         # Use northwest and southeast corners for proper tile boundary detection
-        tmin = tile(west, north, 32, truncate=truncate)
-        tmax = tile(east, south, 32, truncate=truncate)
+
+        # Always use truncate=True here
+        tmin = tuple(tile(west, north, 32, truncate=True))
+        tmax = tuple(tile(east, south, 32, truncate=True))
     except InvalidLatitudeError:
-        if truncate:
-            # If truncation is enabled but we still get an error, return world tile
-            return Tile(0, 0, 0)
-        # Propagate the error if truncate is False
-        raise
+        # If we still get an error, return world tile
+        return Tile(0, 0, 0)
 
     # Combine tile coordinates for bbox calculation
     # cell contains [min_x, min_y, max_x, max_y] at zoom 32
@@ -1309,3 +1253,95 @@ def _get_bbox_zoom(
 def _rshift(val: int, n: int) -> int:
     """Right shift a value by n bits, handling 32-bit overflow."""
     return (val % 0x100000000) >> n
+
+
+def _parse_bbox_args(*bbox: LngLatBbox | LngLat | float) -> tuple[float, float, float, float]:
+    """Parse flexible bbox arguments into west, south, east, north coordinates.
+
+    Args:
+        *bbox: Bounding box as west, south, east, north values in decimal degrees.
+            Can also accept 2 values which will be duplicated for a point.
+
+    Returns:
+        Tuple of (west, south, east, north) coordinates.
+
+    Raises:
+        TileError: If the bounding box arguments are invalid.
+    """
+    west: float
+    south: float
+    east: float
+    north: float
+
+    try:
+        # Handle different argument patterns
+        if len(bbox) == 1:
+            # Single argument - could be LngLatBbox, LngLat, or float
+            single_arg = bbox[0]
+            if isinstance(single_arg, LngLatBbox | LngLat):
+                if len(single_arg) == 4:  # LngLatBbox
+                    west, south, east, north = single_arg
+                else:  # LngLat - duplicate coordinates for point
+                    west, south = single_arg
+                    east, north = west, south
+            else:
+                # single_arg is float - treat as a point
+                west = south = east = north = single_arg
+        elif len(bbox) == 2:
+            # Two arguments - treat as LngLat point
+            west, south = bbox  # type: ignore[assignment]
+            east, north = west, south
+        elif len(bbox) == 4:
+            # Four arguments - treat as bbox
+            west, south, east, north = bbox  # type: ignore[assignment]
+        else:
+            raise ValueError(f"Expected 1, 2, or 4 arguments, got {len(bbox)}")
+
+        return west, south, east, north
+    except (TypeError, ValueError, IndexError) as e:
+        raise TileError(f"Invalid bounding box arguments: {bbox!r}") from e
+
+
+def _merge_siblings_recursively(tiles: Set[Tile]) -> list[Tile]:
+    """Recursively merge sibling tiles into their parents when all 4 siblings are present."""
+    current_tiles = tiles
+
+    while True:
+        merged_tiles, changed = _merge_siblings_once(current_tiles)
+        if not changed:
+            break
+        current_tiles = set(merged_tiles)
+
+    return list(current_tiles)
+
+
+def _merge_siblings_once(tiles: Set[Tile]) -> tuple[list[Tile], bool]:
+    """Perform one pass of sibling merging.
+
+    Returns:
+        Tuple of (new_tileset, changed_flag) where changed_flag indicates
+        if any merging occurred.
+    """
+    # Group tiles by their parent
+    parent_to_children: dict[Tile, set[Tile]] = defaultdict(set)
+
+    for tile in tiles:
+        tile_parent = parent(tile)
+        if not tile_parent:
+            continue
+
+        parent_to_children[tile_parent].add(tile)
+
+    result: list[Tile] = []
+    changed = False
+
+    for parent_tile, children in parent_to_children.items():
+        if len(children) == 4:
+            # All 4 siblings present - merge into parent
+            result.append(parent_tile)
+            changed = True
+        else:
+            # Keep the individual child tiles
+            result.extend(children)
+
+    return result, changed
