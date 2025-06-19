@@ -19,15 +19,15 @@ TileXyz: TypeAlias = "tuple[int, int, int]"
 TileArg: TypeAlias = "Tile | TileXyz | int"
 
 #: # Conversion factor from radians to degrees.
-R2D: Final[float] = 180.0 / 3.14159265358979323846
+R2D: Final[float] = 180.0 / math.pi
 #: Radius of the Earth in meters (WGS84).
 RE: Final[float] = 6378137.0
 #: Circumference of the Earth in meters (WGS84).
-CE: Final[float] = 2 * 3.14159265358979323846 * RE
+CE: Final[float] = 2 * math.pi * RE
 #: # Small value for precision handling.
-EPSILON: Final[float] = 1e-12
+EPSILON: Final[float] = 1e-14
 #: # Small value for precision handling in longitude/latitude.
-LL_EPSILON: Final[float] = 1e-6
+LL_EPSILON: Final[float] = 1e-11
 
 # Web mercator latitude limits (approximately ±85.05°)
 MAX_LAT = 85.0511287798066
