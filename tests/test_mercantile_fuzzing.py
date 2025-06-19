@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import mercantile as upstream_mercantile
-from hypothesis import assume, given, settings
+from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy, composite
 
@@ -261,7 +261,10 @@ class TestBoundingFunctions:
         assert our_result.z == upstream_result.z
 
     @given(valid_bbox(), valid_zoom())
-    @settings(max_examples=50)
+    @settings(
+        max_examples=50,
+        suppress_health_check=[HealthCheck.filter_too_much],
+    )
     def test_tiles_conversion(self, bbox: tuple[float, float, float, float], zoom: int) -> None:
         """Test that tiles() produces identical results to upstream mercantile."""
         west, south, east, north = bbox

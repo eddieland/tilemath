@@ -57,7 +57,7 @@ The library provides the same API as mercantile, including:
 
 ## Type Safety
 
-Unlike the original mercantile, tilemath provides complete type annotations:
+tilemath adds complete type annotations:
 
 ```python
 from tilemath.mercantile import Tile, Bbox

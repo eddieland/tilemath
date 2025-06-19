@@ -6,8 +6,21 @@ name = "tilemath"
 description = "API-compatible replacement for the Mercantile library with full type safety."
 authors = [{ name = "Edward Jones", email = "e@eddie.land" }]
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.10,<4.0"
 dynamic = ["version"]
+keywords = [
+    "gis",
+    "mapping",
+    "tiles",
+    "mercantile",
+    "coordinates",
+    "geospatial",
+    "spherical-mercator",
+    "web-mercator",
+    "quadkey",
+    "slippy-map",
+]
 
 # https://pypi.org/classifiers/
 # Adjust as needed:
@@ -15,6 +28,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     # "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -22,6 +36,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
 
@@ -41,7 +57,10 @@ dev = [
 ]
 
 [project.urls]
+Homepage = "https://github.com/eddieland/tilemath"
 Repository = "https://github.com/eddieland/tilemath"
+"Bug Tracker" = "https://github.com/eddieland/tilemath/issues"
+Changelog = "https://github.com/eddieland/tilemath/releases"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
