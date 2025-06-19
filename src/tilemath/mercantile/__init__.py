@@ -1096,7 +1096,68 @@ def feature(
     Raises:
         TileArgParsingError: If tile arguments are invalid.
     """
-    raise NotImplementedError("feature function not yet implemented")
+    # Parse tile arguments
+    parsed_tile = _parse_tile_arg(*tile)
+
+    # Validate precision if provided
+    if precision is not None and precision < 0:
+        msg = f"Precision must be >= 0, got {precision}"
+        raise ValueError(msg)
+
+    # Get bounding box coordinates based on projection
+    if projected == "mercator":
+        mercator_bbox = xy_bounds(parsed_tile)
+        west, south, east, north = mercator_bbox.left, mercator_bbox.bottom, mercator_bbox.right, mercator_bbox.top
+    else:  # geographic (default)
+        geo_bbox = bounds(parsed_tile)
+        west, south, east, north = geo_bbox.west, geo_bbox.south, geo_bbox.east, geo_bbox.north
+
+    # Apply buffer if specified
+    if buffer is not None:
+        west -= buffer
+        south -= buffer
+        east += buffer
+        north += buffer
+
+    # Create coordinate ring for polygon (counter-clockwise)
+    coords = [
+        [west, south],  # bottom-left
+        [west, north],  # top-left
+        [east, north],  # top-right
+        [east, south],  # bottom-right
+        [west, south],  # close the ring
+    ]
+
+    # Apply precision truncation if specified
+    if precision is not None:
+        coords = [[round(x, precision), round(y, precision)] for x, y in coords]
+
+    # Create feature properties
+    feature_props: dict[str, Any] = {
+        "title": f"XYZ tile {parsed_tile.x}, {parsed_tile.y}, {parsed_tile.z}",
+        "grid-name": "mercator",
+        "grid-zoom": parsed_tile.z,
+        "grid-x": parsed_tile.x,
+        "grid-y": parsed_tile.y,
+    }
+
+    # Add any additional properties
+    if props:
+        feature_props.update(props)
+
+    # Create GeoJSON feature
+    geojson_feature: dict[str, Any] = {
+        "type": "Feature",
+        "bbox": [west, south, east, north],
+        "id": fid if fid is not None else str(parsed_tile),
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [coords],
+        },
+        "properties": feature_props,
+    }
+
+    return geojson_feature
 
 
 def _xy(lng: float, lat: float, truncate: bool = False) -> tuple[float, float]:
