@@ -54,6 +54,7 @@ dev = [
     "pytest>=8.3.5",
     "pytest-sugar>=1.0.0",
     "ruff>=0.11.9",
+    "supermercado>=0.2.0",
 ]
 
 [project.urls]
