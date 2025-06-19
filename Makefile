@@ -25,7 +25,7 @@ test: ## Run tests
 	uv run pytest
 
 fmt: ## Format code
-	uv run ruff check --fix src tests devtools 2>/dev/null || :
+	uv run ruff check --fix --exit-zero src tests devtools >/dev/null
 	uv run ruff format src tests devtools
 
 upgrade: ## Upgrade dependencies

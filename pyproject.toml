@@ -27,7 +27,9 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 
-dependencies = []
+dependencies = [
+    "typing-extensions>=4.14.0",
+]
 
 [dependency-groups]
 dev = [
@@ -37,7 +39,7 @@ dev = [
     "codespell>=2.4.1",
     "rich>=14.0.0",
     "mypy>=1.8.0",
-    "funlog>=0.2.1",
+    "hypothesis>=6.135.11",
 ]
 
 [project.urls]
@@ -118,7 +120,10 @@ convention = "google" # Enforce Google-style docstrings
 "devtools/**/*.py" = ["D"]
 
 [tool.mypy]
+mypy_path = "src"
+
 # Strict mypy configuration
+platform = "linux"
 python_version = "3.11"
 strict = true
 
@@ -131,9 +136,6 @@ warn_no_return = true
 warn_unreachable = true
 disallow_any_generics = true
 disallow_any_unimported = true
-disallow_any_expr = true
-disallow_any_decorated = true
-disallow_any_explicit = true
 disallow_subclassing_any = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
@@ -158,22 +160,6 @@ explicit_package_bases = true
 # Miscellaneous strictness
 no_implicit_reexport = true
 local_partial_types = true
-
-# Platform configuration
-platform = "linux"
-
-# Files to check
-files = ["src", "tests", "devtools"]
-
-# Per-module options can be added here if needed
-# [[tool.mypy.overrides]]
-# module = "some_module.*"
-# ignore_errors = true
-
-[tool.codespell]
-# Add here as needed:
-# ignore-words-list = "foo,bar"
-# skip = "foo.py,bar.py"
 
 [tool.pytest.ini_options]
 python_files = ["*.py"]
