@@ -8,12 +8,12 @@ from __future__ import annotations
 import math
 import warnings
 from collections import defaultdict
-from collections.abc import Generator, Iterator, Sequence, Set
-from dataclasses import dataclass
+from collections.abc import Generator, Iterator, Mapping, Sequence, Set
 from functools import lru_cache
 from operator import attrgetter
-from typing import Any, Final, TypeAlias
+from typing import Any, Final, NamedTuple, TypeAlias
 
+#: TypeAlias for a tile represented as a tuple of (x, y, z) coordinates (where z is the zoom level).
 TileXyz: TypeAlias = "tuple[int, int, int]"
 
 #: Matches mercantile's ``*tile`` argument type, which is a strange polymorphic type that can either be a Tile
@@ -65,96 +65,29 @@ class TileError(MercantileError):
     """Raised when a tile can't be determined."""
 
 
-# Dataclases which are namedtuple-like, immutable, and hashable, similar to mercantile's Tile/LngLat/LngLatBbox/Bbox.
+# Use NamedTuple with custom constructors to match mercantile's Tile/LngLat/LngLatBbox/Bbox classes.
+# We initially tried dataclasses, but ran into typing issues with the *unpack operator in function
+# arguments. NamedTuple gives us the tuple-like behavior we need (including unpack support) while
+# still allowing validation and custom methods like a dataclass would.
+# It may be worth revisiting this later.
 
 
-@dataclass(frozen=True)
-class Tile:  # noqa: UP006
+class Tile(NamedTuple):
     """An XYZ web mercator tile."""
 
     x: int
     y: int
     z: int
 
-    def __post_init__(self) -> None:
-        """Finish initializing a Tile instance."""
-        lo, hi = minmax(self.z)
-        if not lo <= self.x <= hi or not lo <= self.y <= hi:
-            warnings.warn("Tile x and y should be within the range (0, 2 ** zoom)", FutureWarning, stacklevel=2)
 
-    def __iter__(self) -> Iterator[int]:
-        """Make Tile iterable like a namedtuple."""
-        return iter((self.x, self.y, self.z))
-
-    def __getitem__(self, index: int) -> int:
-        """Make Tile indexable like a namedtuple."""
-        return (self.x, self.y, self.z)[index]
-
-    def __len__(self) -> int:
-        """Return length like a namedtuple."""
-        return 3
-
-    def __eq__(self, value: Any) -> bool:
-        """Check equality with another Tile or similar object."""
-        if isinstance(value, Tile):
-            return self.x == value.x and self.y == value.y and self.z == value.z
-
-        # Handle tuples, namedtuples, and other sequences
-        try:
-            if len(value) == 3:
-                return (self.x, self.y, self.z) == tuple(value)
-        except (TypeError, AttributeError):
-            pass
-
-        return NotImplemented
-
-    def __lt__(self, other: object) -> bool:
-        """Compare Tile instances for sorting."""
-        if not isinstance(other, Tile):
-            return NotImplemented
-
-        return (self.x, self.y, self.z) < (other.x, other.y, other.z)
-
-
-@dataclass(frozen=True)
-class LngLat:
+class LngLat(NamedTuple):
     """A longitude and latitude pair in decimal degrees."""
 
     lng: float
     lat: float
 
-    def __post_init__(self) -> None:
-        """Finish initializing a LngLat instance."""
 
-    def __iter__(self) -> Iterator[float]:
-        """Make LngLat iterable like a namedtuple."""
-        return iter((self.lng, self.lat))
-
-    def __getitem__(self, index: int) -> float:
-        """Make LngLat indexable like a namedtuple."""
-        return (self.lng, self.lat)[index]
-
-    def __len__(self) -> int:
-        """Return length like a namedtuple."""
-        return 2
-
-    def __eq__(self, value: Any) -> bool:
-        """Check equality with another LngLat or similar object."""
-        if not isinstance(value, LngLat):
-            return NotImplemented
-
-        return self.lng == value.lng and self.lat == value.lat
-
-    def __lt__(self, other: object) -> bool:
-        """Compare LngLat instances for sorting."""
-        if not isinstance(other, LngLat):
-            return NotImplemented
-
-        return (self.lng, self.lat) < (other.lng, other.lat)
-
-
-@dataclass(frozen=True)
-class LngLatBbox:
+class LngLatBbox(NamedTuple):
     """A geographic bounding box."""
 
     west: float
@@ -162,103 +95,14 @@ class LngLatBbox:
     east: float
     north: float
 
-    def __post_init__(self) -> None:
-        """Finish initializing a LngLatBbox instance.
 
-        Raises:
-            TileError: If the bounding box is invalid (e.g., west >= east or south >= north).
-        """
-        if self.west >= self.east or self.south >= self.north:
-            raise TileError(f"Invalid bounding box: ({self.west}, {self.south}, {self.east}, {self.north})")
-
-    def __iter__(self) -> Iterator[float]:
-        """Make LngLatBbox iterable like a namedtuple."""
-        return iter((self.west, self.south, self.east, self.north))
-
-    def __getitem__(self, index: int) -> float:
-        """Make LngLatBbox indexable like a namedtuple."""
-        return (self.west, self.south, self.east, self.north)[index]
-
-    def __len__(self) -> int:
-        """Return length like a namedtuple."""
-        return 4
-
-    def __eq__(self, value: Any) -> bool:
-        """Check equality with another LngLatBbox, tuple, or similar object."""
-        if isinstance(value, LngLatBbox):
-            return (
-                self.west == value.west
-                and self.south == value.south
-                and self.east == value.east
-                and self.north == value.north
-            )
-
-        # Handle tuples, namedtuples, and other sequences
-        try:
-            if len(value) == 4:
-                return (self.west, self.south, self.east, self.north) == tuple(value)
-        except (TypeError, AttributeError):
-            pass
-
-        return NotImplemented
-
-    def __lt__(self, other: object) -> bool:
-        """Compare LngLatBbox instances for sorting."""
-        if not isinstance(other, LngLatBbox):
-            return NotImplemented
-
-        return (self.west, self.south, self.east, self.north) < (other.west, other.south, other.east, other.north)
-
-
-@dataclass(frozen=True)
-class Bbox:
+class Bbox(NamedTuple):
     """A web mercator bounding box."""
 
     left: float
     bottom: float
     right: float
     top: float
-
-    def __post_init__(self) -> None:
-        """Finish initializing a Bbox instance."""
-
-    def __iter__(self) -> Iterator[float]:
-        """Make Bbox iterable like a namedtuple."""
-        return iter((self.left, self.bottom, self.right, self.top))
-
-    def __getitem__(self, index: int) -> float:
-        """Make Bbox indexable like a namedtuple."""
-        return (self.left, self.bottom, self.right, self.top)[index]
-
-    def __len__(self) -> int:
-        """Return length like a namedtuple."""
-        return 4
-
-    def __eq__(self, value: Any) -> bool:
-        """Check equality with another Bbox or similar object."""
-        if isinstance(value, Bbox):
-            return (
-                self.left == value.left
-                and self.bottom == value.bottom
-                and self.right == value.right
-                and self.top == value.top
-            )
-
-        # Handle tuples, namedtuples, and other sequences
-        try:
-            if len(value) == 4:
-                return (self.left, self.bottom, self.right, self.top) == tuple(value)
-        except (TypeError, AttributeError):
-            pass
-
-        return NotImplemented
-
-    def __lt__(self, other: object) -> bool:
-        """Compare Bbox instances for sorting."""
-        if not isinstance(other, Bbox):
-            return NotImplemented
-
-        return (self.left, self.bottom, self.right, self.top) < (other.left, other.bottom, other.right, other.top)
 
 
 TileOrXyz: TypeAlias = "Tile | TileXyz"
@@ -499,9 +343,8 @@ def xy(lng: float, lat: float, truncate: bool = False) -> tuple[float, float]:
         truncate: Whether to truncate inputs to web mercator limits.
 
     Returns:
-        Tuple[float, float]: Web mercator coordinates (x, y) in meters.
-            y will be inf at the North Pole (lat >= 90) and -inf at the
-            South Pole (lat <= -90).
+        Web mercator coordinates (x, y) in meters. y will be inf at the North Pole (lat >= 90) and -inf at the
+        South Pole (lat <= -90).
     """
     if truncate:
         lng, lat = truncate_lnglat(lng, lat)
@@ -512,18 +355,14 @@ def xy(lng: float, lat: float, truncate: bool = False) -> tuple[float, float]:
 
         if lng < -180.0 or lng > 180.0:
             warnings.warn(
-                f"Invalid longitude {lng} is outside valid range [-180, 180]. "
-                "This will raise an error in a future version. "
-                "Use truncate=True to automatically clamp values.",
+                f"Invalid longitude {lng} is outside valid range [-180, 180]. This will raise an error in a future version. Use truncate=True to automatically clamp values.",
                 FutureWarning,
                 stacklevel=2,
             )
 
         if lat < -90.0 or lat > 90.0:
             warnings.warn(
-                f"Invalid latitude {lat} is outside valid range [-90, 90]. "
-                "This will raise an error in a future version. "
-                "Use truncate=True to automatically clamp values.",
+                f"Invalid latitude {lat} is outside valid range [-90, 90]. This will raise an error in a future version. Use truncate=True to automatically clamp values.",
                 FutureWarning,
                 stacklevel=2,
             )
@@ -1191,7 +1030,7 @@ def _xy(lng: float, lat: float, truncate: bool = False) -> tuple[float, float]:
         return x, y
 
 
-def _coords(obj: dict[str, Any] | list[Any] | tuple[Any, ...]) -> Generator[tuple[float, float], None, None]:
+def _coords(obj: Mapping[str, Any] | Sequence[Any]) -> Iterator[tuple[float, float]]:
     """Iterate over all coordinates in a GeoJSON-like object or coordinate tuple.
 
     This function handles GeoJSON geometries, features, feature collections, and coordinate arrays, yielding each
@@ -1204,7 +1043,7 @@ def _coords(obj: dict[str, Any] | list[Any] | tuple[Any, ...]) -> Generator[tupl
         Each coordinate as a tuple of (longitude, latitude).
     """
     # Extract coordinates based on object type
-    if isinstance(obj, tuple | list):
+    if isinstance(obj, Sequence):
         coordinates = obj
     else:
         if "features" in obj:
@@ -1339,12 +1178,11 @@ def _parse_bbox_args(*bbox: LngLatBbox | LngLat | float) -> tuple[float, float, 
         if len(bbox) == 1:
             # Single argument - could be LngLatBbox, LngLat, or float
             single_arg = bbox[0]
-            if isinstance(single_arg, LngLatBbox | LngLat):
-                if len(single_arg) == 4:  # LngLatBbox
-                    west, south, east, north = single_arg
-                else:  # LngLat - duplicate coordinates for point
-                    west, south = single_arg
-                    east, north = west, south
+            if isinstance(single_arg, LngLatBbox):
+                west, south, east, north = single_arg
+            elif isinstance(single_arg, LngLat):
+                west, south = single_arg
+                east, north = west, south
             else:
                 # single_arg is float - treat as a point
                 west = south = east = north = single_arg

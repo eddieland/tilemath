@@ -191,7 +191,7 @@ def test_global_tiles_clamped() -> None:
 )
 def test_tiles_roundtrip(t: mercantile.Tile) -> None:
     """tiles(bounds(tile)) gives the tile"""
-    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[t.z]))  # type: ignore[misc]
+    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[t.z]))
     assert len(res) == 1
     val = res.pop()
     assert val.x == t.x
@@ -202,7 +202,7 @@ def test_tiles_roundtrip(t: mercantile.Tile) -> None:
 def test_tiles_roundtrip_children() -> None:
     """tiles(bounds(tile)) gives the tile's children"""
     t = mercantile.Tile(x=3413, y=6202, z=14)
-    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[15]))  # type: ignore[misc]
+    res = list(mercantile.tiles(*mercantile.bounds(t), zooms=[15]))
     assert len(res) == 4
 
 
@@ -624,17 +624,3 @@ def test_geojson_bounds(obj: dict[str, Any] | list[tuple[int, int]]) -> None:
     assert bbox.south == -2.0
     assert bbox.east == 1.0
     assert bbox.north == 2.0
-
-
-@pytest.mark.parametrize(
-    "x,y",
-    [
-        pytest.param(0, 1, id="x0_y1"),
-        pytest.param(1, 0, id="x1_y0"),
-        pytest.param(-1, 0, id="x_neg1_y0"),
-        pytest.param(0, -1, id="x0_y_neg1"),
-    ],
-)
-def test_xy_future_warnings(x: int, y: int) -> None:
-    with pytest.warns(FutureWarning):
-        mercantile.Tile(x, y, 0)

@@ -1,6 +1,13 @@
 # Dynamic versioning from:
 # https://github.com/ninoseki/uv-dynamic-versioning/
 
+
+[project.urls]
+Homepage = "https://github.com/eddieland/tilemath"
+Repository = "https://github.com/eddieland/tilemath"
+"Bug Tracker" = "https://github.com/eddieland/tilemath/issues"
+Changelog = "https://github.com/eddieland/tilemath/releases"
+
 [project]
 name = "tilemath"
 description = "API-compatible replacement for the Mercantile library with full type safety."
@@ -45,6 +52,11 @@ dependencies = [
     "typing-extensions>=4.14.0",
 ]
 
+[project.optional-dependencies]
+numpy = [
+    "numpy>=2",
+]
+
 [dependency-groups]
 dev = [
     "codespell>=2.4.1",
@@ -56,12 +68,6 @@ dev = [
     "ruff>=0.11.9",
     "supermercado>=0.2.0",
 ]
-
-[project.urls]
-Homepage = "https://github.com/eddieland/tilemath"
-Repository = "https://github.com/eddieland/tilemath"
-"Bug Tracker" = "https://github.com/eddieland/tilemath/issues"
-Changelog = "https://github.com/eddieland/tilemath/releases"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
@@ -177,12 +183,3 @@ explicit_package_bases = true
 # Miscellaneous strictness
 no_implicit_reexport = true
 local_partial_types = true
-
-
-[tool.pytest.ini_options]
-python_files = ["*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-testpaths = ["src", "tests"]
-norecursedirs = []
-filterwarnings = []
