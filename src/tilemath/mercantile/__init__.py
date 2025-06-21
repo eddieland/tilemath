@@ -49,10 +49,6 @@ class InvalidZoomError(MercantileError):
     """Raised when a zoom level is invalid."""
 
 
-class ParentTileError(MercantileError):
-    """Raised when a parent tile cannot be determined."""
-
-
 class QuadKeyError(MercantileError):
     """Raised when errors occur in computing or parsing quad keys."""
 
@@ -481,8 +477,7 @@ def xy_bounds(*tile: TileArg) -> Bbox:
         Bbox: Web mercator bounding box in meters.
 
     Note:
-        Epsilon is subtracted from the right limit and added to the bottom
-        limit for precision handling.
+        Epsilon is subtracted from the right limit and added to the bottom limit for precision handling.
 
     Raises:
         TileArgParsingError: If tile arguments are invalid.
@@ -549,9 +544,6 @@ def quadkey_to_tile(qk: str) -> Tile:
 
     Raises:
         QuadKeyError: If quadkey contains invalid digits.
-
-    Note:
-        Issues DeprecationWarning about QuadKeyError inheritance change in v2.0.
     """
     if not qk:
         return Tile(0, 0, 0)
@@ -702,7 +694,6 @@ def parent(
     Raises:
         TileArgParsingError: If tile arguments are invalid.
         InvalidZoomError: If zoom is not an integer less than input tile zoom.
-        ParentTileError: If parent of non-integer tile is requested.
     """
     as_tile = _parse_tile_arg(*tile)
 
@@ -715,7 +706,7 @@ def parent(
         target_zoom = as_tile.z - 1
     else:
         if zoom >= as_tile.z:
-            raise InvalidZoomError(f"zoom must be an integer and less than {as_tile.z}")
+            raise InvalidZoomError(f"zoom must be less than {as_tile.z}")
 
         target_zoom = zoom
 
@@ -755,7 +746,7 @@ def children(
         target_zoom = as_tile.z + 1
     else:
         if zoom <= as_tile.z:
-            raise InvalidZoomError(f"zoom must be an integer and greater than {as_tile.z}")
+            raise InvalidZoomError(f"zoom must be greater than {as_tile.z}")
 
         target_zoom = zoom
 

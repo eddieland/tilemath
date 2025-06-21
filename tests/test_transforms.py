@@ -530,8 +530,8 @@ class TestTransformBounds:
 
     @given(
         st.floats(min_value=0, max_value=0.4, allow_nan=False),  # left
-        st.floats(min_value=0.6, max_value=0.99, allow_nan=False),  # right
         st.floats(min_value=0, max_value=0.4, allow_nan=False),  # bottom
+        st.floats(min_value=0.6, max_value=0.99, allow_nan=False),  # right
         st.floats(min_value=0.6, max_value=0.99, allow_nan=False),  # top
     )
     def test_bounds_properties(self, left: float, bottom: float, right: float, top: float) -> None:

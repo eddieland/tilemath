@@ -308,19 +308,19 @@ def test_children_multi() -> None:
 def test_child_fractional_zoom() -> None:
     with pytest.raises(mercantile.InvalidZoomError) as e:
         mercantile.children((243, 166, 9), zoom=10.2)  # type: ignore[arg-type]
-    assert "zoom must be an integer and greater than" in str(e.value)
+    assert "zoom must be greater than" in str(e.value)
 
 
 def test_child_bad_tile_zoom() -> None:
     with pytest.raises(mercantile.InvalidZoomError) as e:
         mercantile.children((243, 166, 9), zoom=8)
-    assert "zoom must be an integer and greater than" in str(e.value)
+    assert "zoom must be greater than" in str(e.value)
 
 
 def test_parent_bad_tile_zoom() -> None:
     with pytest.raises(mercantile.InvalidZoomError) as e:
         mercantile.parent((243.3, 166.2, 9), zoom=10)  # type: ignore[arg-type]
-    assert "zoom must be an integer and less than" in str(e.value)
+    assert "zoom must be less than" in str(e.value)
 
 
 def test_neighbors() -> None:
