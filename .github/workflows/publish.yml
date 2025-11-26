@@ -13,7 +13,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout (official GitHub action)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Important for versioning plugins:
           fetch-depth: 0
