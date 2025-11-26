@@ -31,7 +31,7 @@ jobs:
       # https://docs.astral.sh/uv/guides/integration/github/
 
       - name: Checkout (official GitHub action)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Important for versioning plugins:
           fetch-depth: 0
